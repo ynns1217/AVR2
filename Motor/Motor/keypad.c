@@ -1,55 +1,71 @@
 ﻿/*
- * keypad.c
+ * keyT.c
  *
- * Created: 2022-06-23 오후 4:03:47
- *  Author: PKNU
+ * Created: 2022-06-23 오후 5:23:44
+ *  Author: Cking
  */ 
+
 #define F_CPU 7372800UL
-#include <avr/io.h> // AVR 입출력에 대한 헤더 파일
-#include <util/delay.h> // delay 함수사용을 위한 헤더파일
+#include <avr/io.h>
+#include <util/delay.h>
 
-unsigned char keyScan();
-
-int main()
+void init_keypad()
 {
-	unsigned key;
-	DDRA = 0xF8;	//0b 1111 1000 -> 포트A의 상위 3비트는 출력(row),
-					// 하위 4비트는 입력(col)으로 설정(포트 하나에 입출력 다 사용)
-	DDRC = 0xFF;
-						
-	while(1)
-	{
-		key = keyScan();
-		if(key == '1') PORTC = 0x01;
-	
-	}
-	return 0;
-		
+	DDRA = 0xF8; //0b 1111 1000
+	PORTA = 0x07; //0b 0000 0111
 }
 
-unsigned char keyScan()
+unsigned char keyscan()
 {
-		PORTA = 0xF7;								//0b 1111 0111 ->
-			if(PINA == 0xF6) return '1';				//0b 1111 0110
-			else if (PINA == 0xFD) return '2';			//0b 1111 1101
-			else if(PINA == 0xFB) return '3';			//0b 1111 1011
-			_delay_ms(10);
-		
-		PORTA = 0xEF;								//0b 1110 1111 ->
-			if(PINA == 0xFE)	return '4';				//0b 1111 1110
-			else if (PINA == 0xFD) return '5';			//0b 1111 1101
-			else if(PINA == 0xFB) return '6';			//0b 1111 1011
-			_delay_ms(10);
-		
-		PORTA = 0xDF;								//0b 1101 1111 ->
-			if(PINA == 0xFE) return '7';				//0b 1111 1110
-			else if (PINA == 0xFD) return '8';			//0b 1111 1101
-			else if(PINA == 0xFB) return '9';			//0b 1111 1011
-			_delay_ms(10);
-		
-		PORTA = 0xBF;								//0b 1011 1111 ->
-			if(PINA == 0xFE) return '4*';				//0b 1111 1110
-			else if (PINA == 0xFD) return '0';			//0b 1111 1101
-			else if(PINA == 0xFB) return '#';			//0b 1111 1011
-			_delay_ms(10);	
+	PORTA = 0x08; //0b 0000 1000
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '1';
+	else if((PINA & 0x07) == 0x02) return '2';
+	else if((PINA & 0x07) == 0x04) return '3';
+	_delay_ms(10);
+	
+	PORTA = 0x10;		// 0x10
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '4';
+	else if((PINA & 0x07) == 0x02) return '5';
+	else if((PINA & 0x07) == 0x04) return '6';
+	_delay_ms(10);
+	
+	PORTA = 0x20;		// 0x20
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '7';
+	else if((PINA & 0x07) == 0x02) return '8';
+	else if((PINA & 0x07) == 0x04) return '9';
+	_delay_ms(10);
+	
+	PORTA = 0x40;		// 0x40
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '*';
+	else if((PINA & 0x07) == 0x02) return '0';
+	else if((PINA & 0x07) == 0x04) return '#';
+	_delay_ms(10);
+	
+	return 0;
+}
+int main()
+{
+	DDRC = 0xFf;
+	init_keypad();
+	
+	while(1){
+		unsigned char key = keyscan();
+		if(key == '1') PORTC = 0x01;
+		else if(key == '2') PORTC = 0x02;
+		else if(key == '3') PORTC = 0x03;
+		else if(key == '4') PORTC = 0x04;
+		else if (key == '5') PORTC = 0x05;
+		else if (key == '6') PORTC = 0x06;
+		else if (key == '7') PORTC = 0x07;
+		else if ( key == '8') PORTC =0x08;
+		else if (key == '9') PORTC = 0x09;
+		else if (key == '*') PORTC = 0x0A;
+		else if (key == '0') PORTC = 0x0B;
+		else if (key == '#') PORTC = 0x0C;		
+	}
+	return 0;
 }

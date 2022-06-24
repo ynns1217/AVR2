@@ -11,6 +11,7 @@
 
 volatile unsigned char TX_flag = 0;
 volatile char TX_data =0;
+
 void putch(unsigned char data)
 {
 	while((UCSR0A & 0x20) == 0);		//전송준비가 될때 까지 대기

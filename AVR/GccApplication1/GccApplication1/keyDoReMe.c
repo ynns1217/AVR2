@@ -107,7 +107,7 @@ void putct(unsigned char data)
 	sound_flag = 0;
 	}
 	
-	}
+	
 	}
 
 

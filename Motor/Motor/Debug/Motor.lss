@@ -3,29 +3,29 @@ Motor.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  000001c8  2**0
+  0 .data         00000000  00800100  00800100  00000280  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000174  00000000  00000000  00000054  2**1
+  1 .text         0000022c  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  000001c8  2**0
+  2 .comment      00000030  00000000  00000000  00000280  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000001f8  2**2
+  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000002b0  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000028  00000000  00000000  00000238  2**0
+  4 .debug_aranges 00000030  00000000  00000000  000002f0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000969  00000000  00000000  00000260  2**0
+  5 .debug_info   00000a79  00000000  00000000  00000320  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000817  00000000  00000000  00000bc9  2**0
+  6 .debug_abbrev 00000838  00000000  00000000  00000d99  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000384  00000000  00000000  000013e0  2**0
+  7 .debug_line   00000496  00000000  00000000  000015d1  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000034  00000000  00000000  00001764  2**2
+  8 .debug_frame  00000044  00000000  00000000  00001a68  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000003eb  00000000  00000000  00001798  2**0
+  9 .debug_str    000003f7  00000000  00000000  00001aac  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000130  00000000  00000000  00001b83  2**0
+ 10 .debug_loc    000002bc  00000000  00000000  00001ea3  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000018  00000000  00000000  00001cb3  2**0
+ 11 .debug_ranges 00000020  00000000  00000000  0000215f  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -109,197 +109,315 @@ Disassembly of section .text:
   92:	d0 e1       	ldi	r29, 0x10	; 16
   94:	de bf       	out	0x3e, r29	; 62
   96:	cd bf       	out	0x3d, r28	; 61
-  98:	61 d0       	rcall	.+194    	; 0x15c <main>
-  9a:	6a c0       	rjmp	.+212    	; 0x170 <_exit>
+  98:	87 d0       	rcall	.+270    	; 0x1a8 <main>
+  9a:	c6 c0       	rjmp	.+396    	; 0x228 <_exit>
 
 0000009c <__bad_interrupt>:
   9c:	b1 cf       	rjmp	.-158    	; 0x0 <__vectors>
 
-0000009e <keyScan>:
-		
+0000009e <init_keypad>:
+#include <avr/io.h>
+#include <util/delay.h>
+
+void init_keypad()
+{
+	DDRA = 0xF8; //0b 1111 1000
+  9e:	88 ef       	ldi	r24, 0xF8	; 248
+  a0:	8a bb       	out	0x1a, r24	; 26
+	PORTA = 0x07; //0b 0000 0111
+  a2:	87 e0       	ldi	r24, 0x07	; 7
+  a4:	8b bb       	out	0x1b, r24	; 27
+  a6:	08 95       	ret
+
+000000a8 <keyscan>:
 }
 
-unsigned char keyScan()
+unsigned char keyscan()
 {
-		PORTA = 0xF7;								//0b 1111 0111 ->
-  9e:	87 ef       	ldi	r24, 0xF7	; 247
-  a0:	8b bb       	out	0x1b, r24	; 27
-			if(PINA == 0xF6) return '1';				//0b 1111 0110
-  a2:	89 b3       	in	r24, 0x19	; 25
-  a4:	86 3f       	cpi	r24, 0xF6	; 246
-  a6:	09 f4       	brne	.+2      	; 0xaa <keyScan+0xc>
-  a8:	41 c0       	rjmp	.+130    	; 0x12c <keyScan+0x8e>
-			else if (PINA == 0xFD) return '2';			//0b 1111 1101
-  aa:	89 b3       	in	r24, 0x19	; 25
-  ac:	8d 3f       	cpi	r24, 0xFD	; 253
-  ae:	09 f4       	brne	.+2      	; 0xb2 <keyScan+0x14>
-  b0:	3f c0       	rjmp	.+126    	; 0x130 <keyScan+0x92>
-			else if(PINA == 0xFB) return '3';			//0b 1111 1011
-  b2:	89 b3       	in	r24, 0x19	; 25
-  b4:	8b 3f       	cpi	r24, 0xFB	; 251
-  b6:	f1 f1       	breq	.+124    	; 0x134 <keyScan+0x96>
+	PORTA = 0x08; //0b 0000 1000
+  a8:	88 e0       	ldi	r24, 0x08	; 8
+  aa:	8b bb       	out	0x1b, r24	; 27
 	#else
 		//round up by default
 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
-  b8:	8f ef       	ldi	r24, 0xFF	; 255
-  ba:	97 e4       	ldi	r25, 0x47	; 71
-  bc:	01 97       	sbiw	r24, 0x01	; 1
-  be:	f1 f7       	brne	.-4      	; 0xbc <keyScan+0x1e>
-  c0:	00 c0       	rjmp	.+0      	; 0xc2 <keyScan+0x24>
-  c2:	00 00       	nop
-			_delay_ms(10);
-		
-		PORTA = 0xEF;								//0b 1110 1111 ->
-  c4:	8f ee       	ldi	r24, 0xEF	; 239
-  c6:	8b bb       	out	0x1b, r24	; 27
-			if(PINA == 0xFE)	return '4';				//0b 1111 1110
+  ac:	83 e3       	ldi	r24, 0x33	; 51
+  ae:	97 e0       	ldi	r25, 0x07	; 7
+  b0:	01 97       	sbiw	r24, 0x01	; 1
+  b2:	f1 f7       	brne	.-4      	; 0xb0 <keyscan+0x8>
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '1';
+  b4:	89 b3       	in	r24, 0x19	; 25
+  b6:	87 70       	andi	r24, 0x07	; 7
+  b8:	81 30       	cpi	r24, 0x01	; 1
+  ba:	09 f4       	brne	.+2      	; 0xbe <keyscan+0x16>
+  bc:	5d c0       	rjmp	.+186    	; 0x178 <keyscan+0xd0>
+	else if((PINA & 0x07) == 0x02) return '2';
+  be:	89 b3       	in	r24, 0x19	; 25
+  c0:	87 70       	andi	r24, 0x07	; 7
+  c2:	82 30       	cpi	r24, 0x02	; 2
+  c4:	09 f4       	brne	.+2      	; 0xc8 <keyscan+0x20>
+  c6:	5a c0       	rjmp	.+180    	; 0x17c <keyscan+0xd4>
+	else if((PINA & 0x07) == 0x04) return '3';
   c8:	89 b3       	in	r24, 0x19	; 25
-  ca:	8e 3f       	cpi	r24, 0xFE	; 254
-  cc:	a9 f1       	breq	.+106    	; 0x138 <keyScan+0x9a>
-			else if (PINA == 0xFD) return '5';			//0b 1111 1101
-  ce:	89 b3       	in	r24, 0x19	; 25
-  d0:	8d 3f       	cpi	r24, 0xFD	; 253
-  d2:	a1 f1       	breq	.+104    	; 0x13c <keyScan+0x9e>
-			else if(PINA == 0xFB) return '6';			//0b 1111 1011
-  d4:	89 b3       	in	r24, 0x19	; 25
-  d6:	8b 3f       	cpi	r24, 0xFB	; 251
-  d8:	99 f1       	breq	.+102    	; 0x140 <keyScan+0xa2>
-  da:	8f ef       	ldi	r24, 0xFF	; 255
-  dc:	97 e4       	ldi	r25, 0x47	; 71
-  de:	01 97       	sbiw	r24, 0x01	; 1
-  e0:	f1 f7       	brne	.-4      	; 0xde <keyScan+0x40>
-  e2:	00 c0       	rjmp	.+0      	; 0xe4 <keyScan+0x46>
-  e4:	00 00       	nop
-			_delay_ms(10);
-		
-		PORTA = 0xDF;								//0b 1101 1111 ->
-  e6:	8f ed       	ldi	r24, 0xDF	; 223
-  e8:	8b bb       	out	0x1b, r24	; 27
-			if(PINA == 0xFE) return '7';				//0b 1111 1110
+  ca:	87 70       	andi	r24, 0x07	; 7
+  cc:	84 30       	cpi	r24, 0x04	; 4
+  ce:	09 f4       	brne	.+2      	; 0xd2 <keyscan+0x2a>
+  d0:	57 c0       	rjmp	.+174    	; 0x180 <keyscan+0xd8>
+  d2:	8f ef       	ldi	r24, 0xFF	; 255
+  d4:	97 e4       	ldi	r25, 0x47	; 71
+  d6:	01 97       	sbiw	r24, 0x01	; 1
+  d8:	f1 f7       	brne	.-4      	; 0xd6 <keyscan+0x2e>
+  da:	00 c0       	rjmp	.+0      	; 0xdc <keyscan+0x34>
+  dc:	00 00       	nop
+	_delay_ms(10);
+	
+	PORTA = 0x10;		// 0x10
+  de:	80 e1       	ldi	r24, 0x10	; 16
+  e0:	8b bb       	out	0x1b, r24	; 27
+  e2:	83 e3       	ldi	r24, 0x33	; 51
+  e4:	97 e0       	ldi	r25, 0x07	; 7
+  e6:	01 97       	sbiw	r24, 0x01	; 1
+  e8:	f1 f7       	brne	.-4      	; 0xe6 <keyscan+0x3e>
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '4';
   ea:	89 b3       	in	r24, 0x19	; 25
-  ec:	8e 3f       	cpi	r24, 0xFE	; 254
-  ee:	51 f1       	breq	.+84     	; 0x144 <keyScan+0xa6>
-			else if (PINA == 0xFD) return '8';			//0b 1111 1101
-  f0:	89 b3       	in	r24, 0x19	; 25
-  f2:	8d 3f       	cpi	r24, 0xFD	; 253
-  f4:	49 f1       	breq	.+82     	; 0x148 <keyScan+0xaa>
-			else if(PINA == 0xFB) return '9';			//0b 1111 1011
-  f6:	89 b3       	in	r24, 0x19	; 25
-  f8:	8b 3f       	cpi	r24, 0xFB	; 251
-  fa:	41 f1       	breq	.+80     	; 0x14c <keyScan+0xae>
-  fc:	8f ef       	ldi	r24, 0xFF	; 255
-  fe:	97 e4       	ldi	r25, 0x47	; 71
- 100:	01 97       	sbiw	r24, 0x01	; 1
- 102:	f1 f7       	brne	.-4      	; 0x100 <keyScan+0x62>
- 104:	00 c0       	rjmp	.+0      	; 0x106 <keyScan+0x68>
- 106:	00 00       	nop
-			_delay_ms(10);
-		
-		PORTA = 0xBF;								//0b 1011 1111 ->
- 108:	8f eb       	ldi	r24, 0xBF	; 191
- 10a:	8b bb       	out	0x1b, r24	; 27
-			if(PINA == 0xFE) return '4*';				//0b 1111 1110
- 10c:	89 b3       	in	r24, 0x19	; 25
- 10e:	8e 3f       	cpi	r24, 0xFE	; 254
- 110:	f9 f0       	breq	.+62     	; 0x150 <keyScan+0xb2>
-			else if (PINA == 0xFD) return '0';			//0b 1111 1101
- 112:	89 b3       	in	r24, 0x19	; 25
- 114:	8d 3f       	cpi	r24, 0xFD	; 253
- 116:	f1 f0       	breq	.+60     	; 0x154 <keyScan+0xb6>
-			else if(PINA == 0xFB) return '#';			//0b 1111 1011
- 118:	89 b3       	in	r24, 0x19	; 25
- 11a:	8b 3f       	cpi	r24, 0xFB	; 251
- 11c:	e9 f0       	breq	.+58     	; 0x158 <keyScan+0xba>
- 11e:	8f ef       	ldi	r24, 0xFF	; 255
- 120:	97 e4       	ldi	r25, 0x47	; 71
- 122:	01 97       	sbiw	r24, 0x01	; 1
- 124:	f1 f7       	brne	.-4      	; 0x122 <keyScan+0x84>
- 126:	00 c0       	rjmp	.+0      	; 0x128 <keyScan+0x8a>
- 128:	00 00       	nop
-			_delay_ms(10);	
- 12a:	08 95       	ret
-}
+  ec:	87 70       	andi	r24, 0x07	; 7
+  ee:	81 30       	cpi	r24, 0x01	; 1
+  f0:	09 f4       	brne	.+2      	; 0xf4 <keyscan+0x4c>
+  f2:	48 c0       	rjmp	.+144    	; 0x184 <keyscan+0xdc>
+	else if((PINA & 0x07) == 0x02) return '5';
+  f4:	89 b3       	in	r24, 0x19	; 25
+  f6:	87 70       	andi	r24, 0x07	; 7
+  f8:	82 30       	cpi	r24, 0x02	; 2
+  fa:	09 f4       	brne	.+2      	; 0xfe <keyscan+0x56>
+  fc:	45 c0       	rjmp	.+138    	; 0x188 <keyscan+0xe0>
+	else if((PINA & 0x07) == 0x04) return '6';
+  fe:	89 b3       	in	r24, 0x19	; 25
+ 100:	87 70       	andi	r24, 0x07	; 7
+ 102:	84 30       	cpi	r24, 0x04	; 4
+ 104:	09 f4       	brne	.+2      	; 0x108 <keyscan+0x60>
+ 106:	42 c0       	rjmp	.+132    	; 0x18c <keyscan+0xe4>
+ 108:	8f ef       	ldi	r24, 0xFF	; 255
+ 10a:	97 e4       	ldi	r25, 0x47	; 71
+ 10c:	01 97       	sbiw	r24, 0x01	; 1
+ 10e:	f1 f7       	brne	.-4      	; 0x10c <keyscan+0x64>
+ 110:	00 c0       	rjmp	.+0      	; 0x112 <keyscan+0x6a>
+ 112:	00 00       	nop
+	_delay_ms(10);
+	
+	PORTA = 0x20;		// 0x20
+ 114:	80 e2       	ldi	r24, 0x20	; 32
+ 116:	8b bb       	out	0x1b, r24	; 27
+ 118:	83 e3       	ldi	r24, 0x33	; 51
+ 11a:	97 e0       	ldi	r25, 0x07	; 7
+ 11c:	01 97       	sbiw	r24, 0x01	; 1
+ 11e:	f1 f7       	brne	.-4      	; 0x11c <keyscan+0x74>
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '7';
+ 120:	89 b3       	in	r24, 0x19	; 25
+ 122:	87 70       	andi	r24, 0x07	; 7
+ 124:	81 30       	cpi	r24, 0x01	; 1
+ 126:	a1 f1       	breq	.+104    	; 0x190 <keyscan+0xe8>
+	else if((PINA & 0x07) == 0x02) return '8';
+ 128:	89 b3       	in	r24, 0x19	; 25
+ 12a:	87 70       	andi	r24, 0x07	; 7
+ 12c:	82 30       	cpi	r24, 0x02	; 2
+ 12e:	91 f1       	breq	.+100    	; 0x194 <keyscan+0xec>
+	else if((PINA & 0x07) == 0x04) return '9';
+ 130:	89 b3       	in	r24, 0x19	; 25
+ 132:	87 70       	andi	r24, 0x07	; 7
+ 134:	84 30       	cpi	r24, 0x04	; 4
+ 136:	81 f1       	breq	.+96     	; 0x198 <keyscan+0xf0>
+ 138:	8f ef       	ldi	r24, 0xFF	; 255
+ 13a:	97 e4       	ldi	r25, 0x47	; 71
+ 13c:	01 97       	sbiw	r24, 0x01	; 1
+ 13e:	f1 f7       	brne	.-4      	; 0x13c <keyscan+0x94>
+ 140:	00 c0       	rjmp	.+0      	; 0x142 <keyscan+0x9a>
+ 142:	00 00       	nop
+	_delay_ms(10);
+	
+	PORTA = 0x40;		// 0x40
+ 144:	80 e4       	ldi	r24, 0x40	; 64
+ 146:	8b bb       	out	0x1b, r24	; 27
+ 148:	83 e3       	ldi	r24, 0x33	; 51
+ 14a:	97 e0       	ldi	r25, 0x07	; 7
+ 14c:	01 97       	sbiw	r24, 0x01	; 1
+ 14e:	f1 f7       	brne	.-4      	; 0x14c <keyscan+0xa4>
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '*';
+ 150:	89 b3       	in	r24, 0x19	; 25
+ 152:	87 70       	andi	r24, 0x07	; 7
+ 154:	81 30       	cpi	r24, 0x01	; 1
+ 156:	11 f1       	breq	.+68     	; 0x19c <keyscan+0xf4>
+	else if((PINA & 0x07) == 0x02) return '0';
+ 158:	89 b3       	in	r24, 0x19	; 25
+ 15a:	87 70       	andi	r24, 0x07	; 7
+ 15c:	82 30       	cpi	r24, 0x02	; 2
+ 15e:	01 f1       	breq	.+64     	; 0x1a0 <keyscan+0xf8>
+	else if((PINA & 0x07) == 0x04) return '#';
+ 160:	89 b3       	in	r24, 0x19	; 25
+ 162:	87 70       	andi	r24, 0x07	; 7
+ 164:	84 30       	cpi	r24, 0x04	; 4
+ 166:	f1 f0       	breq	.+60     	; 0x1a4 <keyscan+0xfc>
+ 168:	8f ef       	ldi	r24, 0xFF	; 255
+ 16a:	97 e4       	ldi	r25, 0x47	; 71
+ 16c:	01 97       	sbiw	r24, 0x01	; 1
+ 16e:	f1 f7       	brne	.-4      	; 0x16c <keyscan+0xc4>
+ 170:	00 c0       	rjmp	.+0      	; 0x172 <keyscan+0xca>
+ 172:	00 00       	nop
+	_delay_ms(10);
+	
+	return 0;
+ 174:	80 e0       	ldi	r24, 0x00	; 0
+ 176:	08 95       	ret
 
-unsigned char keyScan()
+unsigned char keyscan()
 {
-		PORTA = 0xF7;								//0b 1111 0111 ->
-			if(PINA == 0xF6) return '1';				//0b 1111 0110
- 12c:	81 e3       	ldi	r24, 0x31	; 49
- 12e:	08 95       	ret
-			else if (PINA == 0xFD) return '2';			//0b 1111 1101
- 130:	82 e3       	ldi	r24, 0x32	; 50
- 132:	08 95       	ret
-			else if(PINA == 0xFB) return '3';			//0b 1111 1011
- 134:	83 e3       	ldi	r24, 0x33	; 51
- 136:	08 95       	ret
-			_delay_ms(10);
-		
-		PORTA = 0xEF;								//0b 1110 1111 ->
-			if(PINA == 0xFE)	return '4';				//0b 1111 1110
- 138:	84 e3       	ldi	r24, 0x34	; 52
- 13a:	08 95       	ret
-			else if (PINA == 0xFD) return '5';			//0b 1111 1101
- 13c:	85 e3       	ldi	r24, 0x35	; 53
- 13e:	08 95       	ret
-			else if(PINA == 0xFB) return '6';			//0b 1111 1011
- 140:	86 e3       	ldi	r24, 0x36	; 54
- 142:	08 95       	ret
-			_delay_ms(10);
-		
-		PORTA = 0xDF;								//0b 1101 1111 ->
-			if(PINA == 0xFE) return '7';				//0b 1111 1110
- 144:	87 e3       	ldi	r24, 0x37	; 55
- 146:	08 95       	ret
-			else if (PINA == 0xFD) return '8';			//0b 1111 1101
- 148:	88 e3       	ldi	r24, 0x38	; 56
- 14a:	08 95       	ret
-			else if(PINA == 0xFB) return '9';			//0b 1111 1011
- 14c:	89 e3       	ldi	r24, 0x39	; 57
- 14e:	08 95       	ret
-			_delay_ms(10);
-		
-		PORTA = 0xBF;								//0b 1011 1111 ->
-			if(PINA == 0xFE) return '4*';				//0b 1111 1110
- 150:	8a e2       	ldi	r24, 0x2A	; 42
- 152:	08 95       	ret
-			else if (PINA == 0xFD) return '0';			//0b 1111 1101
- 154:	80 e3       	ldi	r24, 0x30	; 48
- 156:	08 95       	ret
-			else if(PINA == 0xFB) return '#';			//0b 1111 1011
- 158:	83 e2       	ldi	r24, 0x23	; 35
-			_delay_ms(10);	
- 15a:	08 95       	ret
+	PORTA = 0x08; //0b 0000 1000
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '1';
+ 178:	81 e3       	ldi	r24, 0x31	; 49
+ 17a:	08 95       	ret
+	else if((PINA & 0x07) == 0x02) return '2';
+ 17c:	82 e3       	ldi	r24, 0x32	; 50
+ 17e:	08 95       	ret
+	else if((PINA & 0x07) == 0x04) return '3';
+ 180:	83 e3       	ldi	r24, 0x33	; 51
+ 182:	08 95       	ret
+	_delay_ms(10);
+	
+	PORTA = 0x10;		// 0x10
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '4';
+ 184:	84 e3       	ldi	r24, 0x34	; 52
+ 186:	08 95       	ret
+	else if((PINA & 0x07) == 0x02) return '5';
+ 188:	85 e3       	ldi	r24, 0x35	; 53
+ 18a:	08 95       	ret
+	else if((PINA & 0x07) == 0x04) return '6';
+ 18c:	86 e3       	ldi	r24, 0x36	; 54
+ 18e:	08 95       	ret
+	_delay_ms(10);
+	
+	PORTA = 0x20;		// 0x20
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '7';
+ 190:	87 e3       	ldi	r24, 0x37	; 55
+ 192:	08 95       	ret
+	else if((PINA & 0x07) == 0x02) return '8';
+ 194:	88 e3       	ldi	r24, 0x38	; 56
+ 196:	08 95       	ret
+	else if((PINA & 0x07) == 0x04) return '9';
+ 198:	89 e3       	ldi	r24, 0x39	; 57
+ 19a:	08 95       	ret
+	_delay_ms(10);
+	
+	PORTA = 0x40;		// 0x40
+	_delay_ms(1);
+	if((PINA & 0x07) == 0x01) return '*';
+ 19c:	8a e2       	ldi	r24, 0x2A	; 42
+ 19e:	08 95       	ret
+	else if((PINA & 0x07) == 0x02) return '0';
+ 1a0:	80 e3       	ldi	r24, 0x30	; 48
+ 1a2:	08 95       	ret
+	else if((PINA & 0x07) == 0x04) return '#';
+ 1a4:	83 e2       	ldi	r24, 0x23	; 35
+	_delay_ms(10);
+	
+	return 0;
+}
+ 1a6:	08 95       	ret
 
-0000015c <main>:
-unsigned char keyScan();
-
+000001a8 <main>:
 int main()
 {
-	unsigned key;
-	DDRA = 0xF8;	//0b 1111 1000 -> 포트A의 상위 3비트는 출력(row),
- 15c:	88 ef       	ldi	r24, 0xF8	; 248
- 15e:	8a bb       	out	0x1a, r24	; 26
-					// 하위 4비트는 입력(col)으로 설정(포트 하나에 입출력 다 사용)
-	DDRC = 0xFF;
- 160:	8f ef       	ldi	r24, 0xFF	; 255
- 162:	84 bb       	out	0x14, r24	; 20
-						
-	while(1)
-	{
-		key = keyScan();
- 164:	9c df       	rcall	.-200    	; 0x9e <keyScan>
+	DDRC = 0xFf;
+ 1a8:	8f ef       	ldi	r24, 0xFF	; 255
+ 1aa:	84 bb       	out	0x14, r24	; 20
+	init_keypad();
+ 1ac:	78 df       	rcall	.-272    	; 0x9e <init_keypad>
+	
+	while(1){
+		unsigned char key = keyscan();
+ 1ae:	7c df       	rcall	.-264    	; 0xa8 <keyscan>
+ 1b0:	81 33       	cpi	r24, 0x31	; 49
 		if(key == '1') PORTC = 0x01;
- 166:	81 33       	cpi	r24, 0x31	; 49
- 168:	e9 f7       	brne	.-6      	; 0x164 <main+0x8>
- 16a:	81 e0       	ldi	r24, 0x01	; 1
- 16c:	85 bb       	out	0x15, r24	; 21
- 16e:	fa cf       	rjmp	.-12     	; 0x164 <main+0x8>
+ 1b2:	19 f4       	brne	.+6      	; 0x1ba <main+0x12>
+ 1b4:	81 e0       	ldi	r24, 0x01	; 1
+ 1b6:	85 bb       	out	0x15, r24	; 21
+ 1b8:	fa cf       	rjmp	.-12     	; 0x1ae <main+0x6>
+ 1ba:	82 33       	cpi	r24, 0x32	; 50
+		else if(key == '2') PORTC = 0x02;
+ 1bc:	19 f4       	brne	.+6      	; 0x1c4 <main+0x1c>
+ 1be:	82 e0       	ldi	r24, 0x02	; 2
+ 1c0:	85 bb       	out	0x15, r24	; 21
+ 1c2:	f5 cf       	rjmp	.-22     	; 0x1ae <main+0x6>
+ 1c4:	83 33       	cpi	r24, 0x33	; 51
+		else if(key == '3') PORTC = 0x03;
+ 1c6:	19 f4       	brne	.+6      	; 0x1ce <main+0x26>
+ 1c8:	83 e0       	ldi	r24, 0x03	; 3
+ 1ca:	85 bb       	out	0x15, r24	; 21
+ 1cc:	f0 cf       	rjmp	.-32     	; 0x1ae <main+0x6>
+ 1ce:	84 33       	cpi	r24, 0x34	; 52
+		else if(key == '4') PORTC = 0x04;
+ 1d0:	19 f4       	brne	.+6      	; 0x1d8 <main+0x30>
+ 1d2:	84 e0       	ldi	r24, 0x04	; 4
+ 1d4:	85 bb       	out	0x15, r24	; 21
+ 1d6:	eb cf       	rjmp	.-42     	; 0x1ae <main+0x6>
+ 1d8:	85 33       	cpi	r24, 0x35	; 53
+		else if (key == '5') PORTC = 0x05;
+ 1da:	19 f4       	brne	.+6      	; 0x1e2 <main+0x3a>
+ 1dc:	85 e0       	ldi	r24, 0x05	; 5
+ 1de:	85 bb       	out	0x15, r24	; 21
+ 1e0:	e6 cf       	rjmp	.-52     	; 0x1ae <main+0x6>
+ 1e2:	86 33       	cpi	r24, 0x36	; 54
+		else if (key == '6') PORTC = 0x06;
+ 1e4:	19 f4       	brne	.+6      	; 0x1ec <main+0x44>
+ 1e6:	86 e0       	ldi	r24, 0x06	; 6
+ 1e8:	85 bb       	out	0x15, r24	; 21
+ 1ea:	e1 cf       	rjmp	.-62     	; 0x1ae <main+0x6>
+ 1ec:	87 33       	cpi	r24, 0x37	; 55
+		else if (key == '7') PORTC = 0x07;
+ 1ee:	19 f4       	brne	.+6      	; 0x1f6 <main+0x4e>
+ 1f0:	87 e0       	ldi	r24, 0x07	; 7
+ 1f2:	85 bb       	out	0x15, r24	; 21
+ 1f4:	dc cf       	rjmp	.-72     	; 0x1ae <main+0x6>
+ 1f6:	88 33       	cpi	r24, 0x38	; 56
+		else if ( key == '8') PORTC =0x08;
+ 1f8:	19 f4       	brne	.+6      	; 0x200 <main+0x58>
+ 1fa:	88 e0       	ldi	r24, 0x08	; 8
+ 1fc:	85 bb       	out	0x15, r24	; 21
+ 1fe:	d7 cf       	rjmp	.-82     	; 0x1ae <main+0x6>
+ 200:	89 33       	cpi	r24, 0x39	; 57
+		else if (key == '9') PORTC = 0x09;
+ 202:	19 f4       	brne	.+6      	; 0x20a <main+0x62>
+ 204:	89 e0       	ldi	r24, 0x09	; 9
+ 206:	85 bb       	out	0x15, r24	; 21
+ 208:	d2 cf       	rjmp	.-92     	; 0x1ae <main+0x6>
+ 20a:	8a 32       	cpi	r24, 0x2A	; 42
+		else if (key == '*') PORTC = 0x0A;
+ 20c:	19 f4       	brne	.+6      	; 0x214 <main+0x6c>
+ 20e:	8a e0       	ldi	r24, 0x0A	; 10
+ 210:	85 bb       	out	0x15, r24	; 21
+ 212:	cd cf       	rjmp	.-102    	; 0x1ae <main+0x6>
+ 214:	80 33       	cpi	r24, 0x30	; 48
+		else if (key == '0') PORTC = 0x0B;
+ 216:	19 f4       	brne	.+6      	; 0x21e <main+0x76>
+ 218:	8b e0       	ldi	r24, 0x0B	; 11
+ 21a:	85 bb       	out	0x15, r24	; 21
+ 21c:	c8 cf       	rjmp	.-112    	; 0x1ae <main+0x6>
+ 21e:	83 32       	cpi	r24, 0x23	; 35
+		else if (key == '#') PORTC = 0x0C;		
+ 220:	31 f6       	brne	.-116    	; 0x1ae <main+0x6>
+ 222:	8c e0       	ldi	r24, 0x0C	; 12
+ 224:	85 bb       	out	0x15, r24	; 21
+ 226:	c3 cf       	rjmp	.-122    	; 0x1ae <main+0x6>
 
-00000170 <_exit>:
- 170:	f8 94       	cli
+00000228 <_exit>:
+ 228:	f8 94       	cli
 
-00000172 <__stop_program>:
- 172:	ff cf       	rjmp	.-2      	; 0x172 <__stop_program>
+0000022a <__stop_program>:
+ 22a:	ff cf       	rjmp	.-2      	; 0x22a <__stop_program>
