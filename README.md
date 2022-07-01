@@ -1,5 +1,5 @@
 ## AVR2
-#Miniproject
+# Miniproject
 
 * Digital Doorlock
  1. 4개의 비밀번호를 설정하고 키패드를 통해서 4개 패스워드 입력
